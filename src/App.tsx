@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import AcademyPage from "./AcademyPage";
 
 type Item = {
   id: string;
@@ -133,7 +134,10 @@ const heroImages = [
   "https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=1800&q=80",
 ];
 
+const whatsappLink = "https://wa.me/233550873047";
+
 export default function App() {
+  const [currentPath, setCurrentPath] = useState(() => window.location.pathname);
   const [navScrolled, setNavScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
@@ -143,6 +147,57 @@ export default function App() {
   const year = useMemo(() => new Date().getFullYear(), []);
 
   useEffect(() => {
+    const syncPath = () => setCurrentPath(window.location.pathname);
+
+    const handleRouteClick = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      const link = target.closest("a");
+
+      if (
+        link instanceof HTMLAnchorElement &&
+        link.origin === window.location.origin &&
+        !link.hash &&
+        (link.pathname === "/" || link.pathname === "/academy")
+      ) {
+        event.preventDefault();
+        window.history.pushState({}, "", link.pathname);
+        syncPath();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    };
+
+    window.addEventListener("popstate", syncPath);
+    document.addEventListener("click", handleRouteClick);
+
+    return () => {
+      window.removeEventListener("popstate", syncPath);
+      document.removeEventListener("click", handleRouteClick);
+    };
+  }, []);
+
+  useEffect(() => {
+    const isAcademy = currentPath === "/academy";
+    document.title = isAcademy
+      ? "APT Automation Academy | Robotics, AI, STEM and Automation Training"
+      : "APT GOD Enterprise | Technology, Agriculture and Innovation";
+
+    let description = document.querySelector<HTMLMetaElement>('meta[name="description"]');
+    if (!description) {
+      description = document.createElement("meta");
+      description.name = "description";
+      document.head.appendChild(description);
+    }
+
+    description.content = isAcademy
+      ? "APT Automation Academy provides robotics, artificial intelligence, STEM, coding, Arduino, and automation training for African learners."
+      : "APT GOD Enterprise is a Ghanaian enterprise building across technology, agriculture, education, transport, crypto ecosystems, and real estate.";
+  }, [currentPath]);
+
+  useEffect(() => {
+    if (currentPath === "/academy") {
+      return;
+    }
+
     const revealElements = Array.from(document.querySelectorAll<HTMLElement>(".reveal"));
     revealElements.forEach((element, index) => {
       element.style.transitionDelay = `${Math.min(index * 45, 280)}ms`;
@@ -163,7 +218,7 @@ export default function App() {
     revealElements.forEach((element) => observer.observe(element));
 
     return () => observer.disconnect();
-  }, []);
+  }, [currentPath]);
 
   useEffect(() => {
     const handleNavState = () => setNavScrolled(window.scrollY > 24);
@@ -204,8 +259,88 @@ export default function App() {
 
   const closeMenuAfterClick = () => setMobileOpen(false);
 
+  if (currentPath === "/academy") {
+    return <AcademyPage />;
+  }
+
   return (
     <div className="official-typography">
+      <nav
+        className={`site-nav fixed left-1/2 top-4 z-[1000] w-[calc(100%-2rem)] max-w-6xl -translate-x-1/2 px-6 py-5 ${navScrolled ? "nav-scrolled" : ""}`}
+      >
+        <div className="flex items-center justify-between">
+          <a href="#home" className="brand-wrap text-lg font-bold tracking-wide md:text-xl">
+            <span className="logo-shell nav-logo-shell">
+              <img
+                src="/logo.png"
+                alt="APT GOD logo"
+                className="brand-logo"
+              />
+            </span>
+            <span>APT GOD Enterprise</span>
+          </a>
+
+          <div className="hidden items-center gap-7 text-sm font-medium md:flex">
+            {[
+              ["About", "#about"],
+              ["Businesses", "#businesses"],
+              ["Services", "#services"],
+              ["Samples", "#samples"],
+              ["CEO", "#ceo"],
+              ["Academy", "/academy"],
+              ["Founder Story", "#founder-story"],
+              ["Vision", "#vision"],
+              ["Contact", "#contact"],
+            ].map(([label, href]) => (
+              <a key={label} href={href} className="nav-link">
+                {label}
+              </a>
+            ))}
+          </div>
+
+          <button
+            className="inline-flex h-11 w-11 items-center justify-center rounded-md border border-white/40 transition hover:bg-white/10 md:hidden"
+            aria-label="Open menu"
+            aria-expanded={mobileOpen}
+            aria-controls="mobileMenu"
+            onClick={() => setMobileOpen((prev) => !prev)}
+            type="button"
+          >
+            <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              {mobileOpen ? (
+                <path d="M6 6L18 18M18 6L6 18" />
+              ) : (
+                <>
+                  <line x1="3" y1="6" x2="21" y2="6" />
+                  <line x1="3" y1="12" x2="21" y2="12" />
+                  <line x1="3" y1="18" x2="21" y2="18" />
+                </>
+              )}
+            </svg>
+          </button>
+        </div>
+
+        <div id="mobileMenu" className={`pb-1 pt-4 md:hidden ${mobileOpen ? "block" : "hidden"}`}>
+          <div className="flex flex-col gap-3 rounded-md border border-white/20 bg-white/10 p-4 text-sm font-medium backdrop-blur-sm">
+            {[
+              ["About", "#about"],
+              ["Businesses", "#businesses"],
+              ["Services", "#services"],
+              ["Samples", "#samples"],
+              ["CEO", "#ceo"],
+              ["Academy", "/academy"],
+              ["Founder Story", "#founder-story"],
+              ["Vision", "#vision"],
+              ["Contact", "#contact"],
+            ].map(([label, href]) => (
+              <a key={label} href={href} className="nav-link w-fit" onClick={closeMenuAfterClick}>
+                {label}
+              </a>
+            ))}
+          </div>
+        </div>
+      </nav>
+
       <header className="hero-bg relative flex min-h-screen flex-col text-white">
         <div className="hero-slideshow" aria-hidden="true">
           {heroImages.map((image, index) => (
@@ -218,80 +353,6 @@ export default function App() {
         </div>
         <span className="hero-beam one" aria-hidden="true" />
         <span className="hero-beam two" aria-hidden="true" />
-
-        <nav
-          className={`site-nav mx-auto mt-4 w-full max-w-6xl px-6 py-5 ${navScrolled ? "nav-scrolled" : ""}`}
-        >
-          <div className="flex items-center justify-between">
-            <a href="#home" className="brand-wrap text-lg font-bold tracking-wide md:text-xl">
-              <span className="logo-shell nav-logo-shell">
-                <img
-                  src="/logo.png"
-                  alt="APT GOD logo"
-                  className="brand-logo"
-                />
-              </span>
-              <span>APT GOD Enterprise</span>
-            </a>
-
-            <div className="hidden items-center gap-7 text-sm font-medium md:flex">
-              {[
-                ["About", "#about"],
-                ["Businesses", "#businesses"],
-                ["Services", "#services"],
-                ["Samples", "#samples"],
-                ["CEO", "#ceo"],
-                ["Founder Story", "#founder-story"],
-                ["Vision", "#vision"],
-                ["Contact", "#contact"],
-              ].map(([label, href]) => (
-                <a key={label} href={href} className="nav-link">
-                  {label}
-                </a>
-              ))}
-            </div>
-
-            <button
-              className="inline-flex h-11 w-11 items-center justify-center rounded-md border border-white/40 transition hover:bg-white/10 md:hidden"
-              aria-label="Open menu"
-              aria-expanded={mobileOpen}
-              aria-controls="mobileMenu"
-              onClick={() => setMobileOpen((prev) => !prev)}
-              type="button"
-            >
-              <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                {mobileOpen ? (
-                  <path d="M6 6L18 18M18 6L6 18" />
-                ) : (
-                  <>
-                    <line x1="3" y1="6" x2="21" y2="6" />
-                    <line x1="3" y1="12" x2="21" y2="12" />
-                    <line x1="3" y1="18" x2="21" y2="18" />
-                  </>
-                )}
-              </svg>
-            </button>
-          </div>
-
-          <div id="mobileMenu" className={`pb-1 pt-4 md:hidden ${mobileOpen ? "block" : "hidden"}`}>
-            <div className="flex flex-col gap-3 rounded-md border border-white/20 bg-white/10 p-4 text-sm font-medium backdrop-blur-sm">
-              {[
-                ["About", "#about"],
-                ["Businesses", "#businesses"],
-                ["Services", "#services"],
-                ["Samples", "#samples"],
-                ["CEO", "#ceo"],
-                ["Founder Story", "#founder-story"],
-                ["Vision", "#vision"],
-                ["Contact", "#contact"],
-              ].map(([label, href]) => (
-                <a key={label} href={href} className="nav-link w-fit" onClick={closeMenuAfterClick}>
-                  {label}
-                </a>
-              ))}
-            </div>
-          </div>
-        </nav>
 
         <section id="home" className="mx-auto flex w-full max-w-6xl flex-1 items-center px-6 py-12 md:py-0">
           <div className="reveal max-w-3xl">
@@ -460,13 +521,65 @@ export default function App() {
               <div className="reveal max-w-3xl">
                 <h2 className="text-3xl font-bold text-[var(--brand-green)] md:text-4xl">Founder and CEO</h2>
                 <p className="mt-6 text-2xl font-semibold text-slate-800">Wordi Gabriel</p>
-                <p className="mt-1 font-medium text-[var(--touch-blue)]">Founder and CEO, APT GOD Enterprise</p>
-                <p className="mt-5 leading-relaxed text-slate-700">
-                  Wordi Gabriel is a tech and STEM enthusiast from Ghana, originally from Akatsi
-                  Zuta and raised in Dzamlome. He is currently pursuing a degree in Early
-                  Childhood Education and is passionate about building innovative solutions that
-                  unlock African potential through enterprise and technology.
+                <p className="mt-1 font-medium text-[var(--touch-blue)]">
+                  Founder & CEO, APT Automation
                 </p>
+                <div className="mt-5 flex flex-wrap gap-2">
+                  {[
+                    "Robotics Instructor",
+                    "Artificial Intelligence (AI) Educator",
+                    "Automation Specialist",
+                    "STEM Education Advocate",
+                    "Technology Trainer",
+                  ].map((title) => (
+                    <span
+                      key={title}
+                      className="rounded-full border border-emerald-200 bg-white/80 px-3 py-1 text-sm font-semibold text-[var(--brand-green)] shadow-sm"
+                    >
+                      {title}
+                    </span>
+                  ))}
+                </div>
+                <p className="mt-5 leading-relaxed text-slate-700">
+                  The Founder and CEO of APT Automation is passionate about empowering African
+                  youth and professionals through Robotics, Artificial Intelligence, Automation,
+                  and STEM education.
+                </p>
+                <p className="mt-4 leading-relaxed text-slate-700">
+                  He holds a Certificate in Artificial Intelligence and Robotics and is also
+                  pursuing a degree in Early Childhood Education. He has dedicated his work to
+                  training children, teenagers, and adults in practical technology skills that
+                  prepare them for the future workforce.
+                </p>
+                <p className="mt-4 leading-relaxed text-slate-700">
+                  His vision is to make Robotics, AI, Automation, and STEM education accessible to
+                  learners across Africa.
+                </p>
+                <div className="mt-6 rounded-lg border border-emerald-200 bg-white/85 p-5 shadow-sm">
+                  <h3 className="text-lg font-bold text-[var(--brand-green)]">Areas of Expertise</h3>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {[
+                      "Robotics",
+                      "Artificial Intelligence",
+                      "Arduino Programming",
+                      "Automation Systems",
+                      "Electronics",
+                      "STEM Education",
+                      "Early Childhood Education",
+                      "Coding and Programming",
+                      "Educational Robotics",
+                      "Innovation Training",
+                      "Technology Mentorship",
+                    ].map((skill) => (
+                      <span
+                        key={skill}
+                        className="rounded-md bg-emerald-50 px-3 py-2 text-sm font-semibold text-slate-700"
+                      >
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -566,6 +679,7 @@ export default function App() {
             <div className="eco-item">Greebit (Blockchain)</div>
             <div className="eco-item">Agriculture</div>
             <div className="eco-item">EduSense AI</div>
+            <div className="eco-item">Automation</div>
             <div className="eco-item">Transport</div>
             <div className="eco-item">Real Estate</div>
           </div>
@@ -632,8 +746,13 @@ export default function App() {
                   </a>
                 </p>
                 <p>
-                  <span className="font-semibold text-[var(--brand-green)]">Phone:</span>{" "}
-                  <a className="underline decoration-emerald-300 hover:text-[var(--touch-blue)]" href="tel:0550873047">
+                  <span className="font-semibold text-[var(--brand-green)]">WhatsApp:</span>{" "}
+                  <a
+                    className="underline decoration-emerald-300 hover:text-[var(--touch-blue)]"
+                    href={whatsappLink}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
                     0550873047
                   </a>
                 </p>
@@ -705,6 +824,14 @@ export default function App() {
                   >
                     Send Message
                   </button>
+                  <a
+                    href={`${whatsappLink}?text=Hello%20APT%20GOD%20Enterprise%2C%20I%20would%20like%20to%20make%20an%20inquiry.`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="ml-0 inline-flex items-center justify-center rounded-md border border-[var(--brand-green)] px-5 py-3 font-semibold text-[var(--brand-green)] transition hover:bg-emerald-50 sm:ml-3"
+                  >
+                    Message on WhatsApp
+                  </a>
                 </form>
               </div>
             </div>
