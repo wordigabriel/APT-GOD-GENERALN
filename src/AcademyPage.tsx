@@ -155,7 +155,7 @@ const counters = [
 
 const testimonials = [
   ["Ama Mensah", "Student", "The robotics class helped me understand coding because I could see my code move a real robot."],
-  ["Kwame Boateng", "Parent", "My son became more confident with electronics and now talks about becoming an engineer."],
+  ["Mrs Agbeko Joyce", "Parent", "My son became more confident with electronics and now talks about becoming an engineer."],
   ["Efua Nyarko", "Teacher", "APT Automation makes STEM practical. Learners see science as something they can build with."],
   ["Kojo Asare", "Professional", "The automation lessons connected sensors, motors, and control systems in a very practical way."],
   ["Nana Yeboah", "Student", "I joined to learn Arduino and left with a working project I could explain proudly."],
