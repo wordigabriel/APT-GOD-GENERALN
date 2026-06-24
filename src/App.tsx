@@ -757,7 +757,7 @@ export default function App() {
                   </a>
                 </p>
                 <p>
-                  <span className="font-semibold text-[var(--brand-green)]">Social:</span> @wordigabriel5-x
+                  <span className="font-semibold text-[var(--brand-green)]">Social:</span> @wordigabriel5
                 </p>
               </div>
 
