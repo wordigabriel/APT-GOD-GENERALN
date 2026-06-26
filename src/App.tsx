@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import AcademyPage from "./AcademyPage";
 
 type Item = {
@@ -13,8 +13,12 @@ type Item = {
 type Sample = {
   title: string;
   description: string;
+  action: string;
+  file: string;
   src: string;
 };
+
+type Theme = "light" | "dark";
 
 const businesses: Item[] = [
   {
@@ -117,13 +121,17 @@ const samples: Sample[] = [
     title: "PowerPoint Design Sample",
     description:
       "Professional presentation styling for school projects, business pitches, and branded slide decks.",
-    src: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf#toolbar=0&navpanes=0&scrollbar=1",
+    action: "Open PowerPoint PDF",
+    file: "samples/sample-powerpoint.pdf",
+    src: "samples/sample-powerpoint.pdf#toolbar=0&navpanes=0&scrollbar=1",
   },
   {
     title: "Word Document Design Sample",
     description:
       "Clean and polished document formatting for reports, project work, books, and professional write-ups.",
-    src: "https://www.africau.edu/images/default/sample.pdf#toolbar=0&navpanes=0&scrollbar=1",
+    action: "Open Word PDF",
+    file: "samples/sample-word.pdf",
+    src: "samples/sample-word.pdf#toolbar=0&navpanes=0&scrollbar=1",
   },
 ];
 
@@ -136,6 +144,15 @@ const heroImages = [
 
 const whatsappLink = "https://wa.me/233550873047";
 
+const getPreferredTheme = (): Theme => {
+  const savedTheme = window.localStorage.getItem("apt-theme");
+  if (savedTheme === "light" || savedTheme === "dark") {
+    return savedTheme;
+  }
+
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+};
+
 export default function App() {
   const [currentPath, setCurrentPath] = useState(() => window.location.pathname);
   const [navScrolled, setNavScrolled] = useState(false);
@@ -143,8 +160,27 @@ export default function App() {
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
   const [activeSample, setActiveSample] = useState<Sample | null>(null);
   const [heroIndex, setHeroIndex] = useState(0);
+  const [contactStatus, setContactStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
+  const [theme, setTheme] = useState<Theme>(getPreferredTheme);
 
   const year = useMemo(() => new Date().getFullYear(), []);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    document.documentElement.style.colorScheme = theme;
+  }, [theme]);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const handlePreferenceChange = (event: MediaQueryListEvent) => {
+      if (!window.localStorage.getItem("apt-theme")) {
+        setTheme(event.matches ? "dark" : "light");
+      }
+    };
+
+    mediaQuery.addEventListener("change", handlePreferenceChange);
+    return () => mediaQuery.removeEventListener("change", handlePreferenceChange);
+  }, []);
 
   useEffect(() => {
     const syncPath = () => setCurrentPath(window.location.pathname);
@@ -227,6 +263,33 @@ export default function App() {
     return () => window.removeEventListener("scroll", handleNavState);
   }, []);
 
+  const handleContactSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    setContactStatus("sending");
+
+    try {
+      const response = await fetch("https://formsubmit.co/ajax/aptgodbusinesses@gmail.com", {
+        method: "POST",
+        body: formData,
+        headers: {
+          Accept: "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Contact form submission failed");
+      }
+
+      form.reset();
+      setContactStatus("success");
+    } catch {
+      setContactStatus("error");
+    }
+  };
+
   useEffect(() => {
     document.body.style.overflow = activeSample ? "hidden" : "";
     return () => {
@@ -258,9 +321,16 @@ export default function App() {
   };
 
   const closeMenuAfterClick = () => setMobileOpen(false);
+  const toggleTheme = () => {
+    setTheme((currentTheme) => {
+      const nextTheme = currentTheme === "dark" ? "light" : "dark";
+      window.localStorage.setItem("apt-theme", nextTheme);
+      return nextTheme;
+    });
+  };
 
   if (currentPath === "/academy") {
-    return <AcademyPage />;
+    return <AcademyPage theme={theme} onThemeToggle={toggleTheme} />;
   }
 
   return (
@@ -296,6 +366,26 @@ export default function App() {
                 {label}
               </a>
             ))}
+            <button
+              type="button"
+              className="theme-toggle"
+              onClick={toggleTheme}
+              aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+            >
+              <span className="theme-toggle-icon" aria-hidden="true">
+                {theme === "dark" ? (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="4" />
+                    <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+                  </svg>
+                ) : (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z" />
+                  </svg>
+                )}
+              </span>
+              {theme === "dark" ? "Light" : "Dark"}
+            </button>
           </div>
 
           <button
@@ -337,6 +427,26 @@ export default function App() {
                 {label}
               </a>
             ))}
+            <button
+              type="button"
+              className="theme-toggle w-fit"
+              onClick={toggleTheme}
+              aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+            >
+              <span className="theme-toggle-icon" aria-hidden="true">
+                {theme === "dark" ? (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="4" />
+                    <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+                  </svg>
+                ) : (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z" />
+                  </svg>
+                )}
+              </span>
+              {theme === "dark" ? "Light" : "Dark"}
+            </button>
           </div>
         </div>
       </nav>
@@ -486,7 +596,7 @@ export default function App() {
               <h2 className="text-3xl font-bold text-[var(--brand-green)] md:text-4xl">Design Samples</h2>
               <p className="mt-4 text-slate-600">
                 Explore sample PowerPoint and Word designs directly on the website. These are
-                view-only previews prepared for clients to assess style and quality before ordering.
+                read-only previews prepared for clients to assess style and quality before ordering.
               </p>
             </div>
 
@@ -495,12 +605,23 @@ export default function App() {
                 <article key={sample.title} className="sample-item reveal">
                   <h3 className="text-xl font-semibold text-[var(--brand-green)]">{sample.title}</h3>
                   <p className="mt-3 text-slate-600">{sample.description}</p>
+                  <p className="sample-direct-link">
+                    Direct PDF path: <a href={sample.file} target="_blank" rel="noreferrer">{sample.file}</a>
+                  </p>
+                  <a
+                    href={sample.file}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-5 inline-flex items-center justify-center rounded-md bg-[var(--touch-blue)] px-4 py-2.5 font-semibold text-white transition hover:bg-[#0b2253]"
+                  >
+                    {sample.action}
+                  </a>
                   <button
                     type="button"
-                    className="mt-5 inline-flex items-center justify-center rounded-md bg-[var(--touch-blue)] px-4 py-2.5 font-semibold text-white transition hover:bg-[#0b2253]"
+                    className="ml-0 mt-3 inline-flex items-center justify-center rounded-md border border-[var(--touch-blue)] px-4 py-2.5 font-semibold text-[var(--touch-blue)] transition hover:bg-blue-50 sm:ml-3"
                     onClick={() => setActiveSample(sample)}
                   >
-                    View Sample
+                    Preview On Page
                   </button>
                 </article>
               ))}
@@ -771,11 +892,11 @@ export default function App() {
                   action="https://formsubmit.co/aptgodbusinesses@gmail.com"
                   className="mt-5 space-y-4"
                   method="POST"
+                  onSubmit={handleContactSubmit}
                 >
                   <input type="hidden" name="_subject" value="New Website Inquiry - APT GOD Enterprise" />
                   <input type="hidden" name="_captcha" value="false" />
                   <input type="hidden" name="_template" value="table" />
-                  <input type="hidden" name="_next" value="#contact" />
 
                   <div>
                     <label htmlFor="senderName" className="mb-1 block text-sm font-semibold text-slate-700">
@@ -820,9 +941,10 @@ export default function App() {
 
                   <button
                     type="submit"
+                    disabled={contactStatus === "sending"}
                     className="inline-flex items-center justify-center rounded-md bg-[var(--brand-green)] px-5 py-3 font-semibold text-white transition hover:bg-[var(--brand-green-2)]"
                   >
-                    Send Message
+                    {contactStatus === "sending" ? "Sending..." : "Send Message"}
                   </button>
                   <a
                     href={`${whatsappLink}?text=Hello%20APT%20GOD%20Enterprise%2C%20I%20would%20like%20to%20make%20an%20inquiry.`}
@@ -832,6 +954,16 @@ export default function App() {
                   >
                     Message on WhatsApp
                   </a>
+                  {contactStatus === "success" ? (
+                    <p className="text-sm font-semibold text-emerald-700">
+                      Message sent successfully. APT GOD Enterprise will receive it by email.
+                    </p>
+                  ) : null}
+                  {contactStatus === "error" ? (
+                    <p className="text-sm font-semibold text-red-700">
+                      The message could not be sent from the website. Please try again or use WhatsApp.
+                    </p>
+                  ) : null}
                 </form>
               </div>
             </div>
@@ -844,19 +976,28 @@ export default function App() {
           <div className="sample-panel" onClick={(event) => event.stopPropagation()}>
             <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
               <h3 className="text-lg font-bold text-[var(--brand-green)]">{activeSample.title}</h3>
-              <button
-                type="button"
-                onClick={() => setActiveSample(null)}
-                className="inline-flex items-center justify-center rounded-md border border-slate-300 px-3 py-2 text-slate-700 transition hover:bg-slate-100"
-              >
-                Close
-              </button>
+              <div className="flex items-center gap-2">
+                <a
+                  href={activeSample.file}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center justify-center rounded-md bg-[var(--touch-blue)] px-3 py-2 text-white transition hover:bg-[#0b2253]"
+                >
+                  Open PDF
+                </a>
+                <button
+                  type="button"
+                  onClick={() => setActiveSample(null)}
+                  className="inline-flex items-center justify-center rounded-md border border-slate-300 px-3 py-2 text-slate-700 transition hover:bg-slate-100"
+                >
+                  Close
+                </button>
+              </div>
             </div>
             <iframe
               className="sample-frame"
               title={`${activeSample.title} preview`}
               src={activeSample.src}
-              sandbox="allow-same-origin allow-scripts"
             />
           </div>
         </section>

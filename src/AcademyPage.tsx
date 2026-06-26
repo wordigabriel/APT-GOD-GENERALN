@@ -20,6 +20,13 @@ type GalleryItem = {
   image: string;
 };
 
+type Technology = {
+  title: string;
+  code: string;
+  description: string;
+  image: string;
+};
+
 const academyImages = {
   hero:
     "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1800&q=80",
@@ -36,6 +43,7 @@ const academyImages = {
 };
 
 const whatsappLink = "https://wa.me/233550873047";
+const roboticsInterestFormLink = "https://forms.gle/RKc3qeoFGTDKETUH9";
 
 const programs: Program[] = [
   {
@@ -117,17 +125,67 @@ const features: Feature[] = [
   { title: "Future Technology Skills", text: "AI, coding, robotics, IoT, and automation are taught as connected disciplines." },
 ];
 
-const technologies = [
-  "Robotics",
-  "Artificial Intelligence",
-  "Arduino",
-  "IoT",
-  "STEM",
-  "Electronics",
-  "Automation",
-  "Coding",
-  "Engineering",
-  "Drones",
+const technologies: Technology[] = [
+  {
+    title: "Robotics",
+    code: "RO",
+    description: "Learners build moving robots, connect sensors and motors, and understand how machines sense, decide, and act.",
+    image: academyImages.robotics,
+  },
+  {
+    title: "Artificial Intelligence",
+    code: "AI",
+    description: "Students explore how smart systems learn patterns, make predictions, and support real-world problem solving.",
+    image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=1200&q=80",
+  },
+  {
+    title: "Arduino",
+    code: "AR",
+    description: "We teach microcontroller programming, wiring, LEDs, sensors, and control projects using Arduino boards.",
+    image: academyImages.arduino,
+  },
+  {
+    title: "IoT",
+    code: "IO",
+    description: "Learners discover how devices connect to the internet, collect data, and communicate in smart environments.",
+    image: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?auto=format&fit=crop&w=1200&q=80",
+  },
+  {
+    title: "STEM",
+    code: "ST",
+    description: "We combine science, technology, engineering, and mathematics through experiments, challenges, and projects.",
+    image: "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=1200&q=80",
+  },
+  {
+    title: "Electronics",
+    code: "EL",
+    description: "Students learn circuits, components, breadboards, power, signals, troubleshooting, and practical safety habits.",
+    image: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80",
+  },
+  {
+    title: "Automation",
+    code: "AU",
+    description: "We explain how systems can run tasks automatically using sensors, controllers, logic, and feedback.",
+    image: "https://images.unsplash.com/photo-1581092335878-2d9ff86ca2bf?auto=format&fit=crop&w=1200&q=80",
+  },
+  {
+    title: "Coding",
+    code: "CO",
+    description: "Learners practice step-by-step programming, debugging, logic, and writing code that controls real projects.",
+    image: academyImages.coding,
+  },
+  {
+    title: "Engineering",
+    code: "EN",
+    description: "Students use design thinking, measurement, testing, teamwork, and improvement cycles to solve problems.",
+    image: "https://images.unsplash.com/photo-1581090464777-f3220bbe1b8b?auto=format&fit=crop&w=1200&q=80",
+  },
+  {
+    title: "Drones",
+    code: "DR",
+    description: "We introduce flight basics, drone parts, control systems, responsible use, and future drone applications.",
+    image: academyImages.drone,
+  },
 ];
 
 const gallery: GalleryItem[] = [
@@ -187,7 +245,12 @@ function AcademySection({
   return <section className={`academy-section ${className}`} {...props}>{children}</section>;
 }
 
-export default function AcademyPage() {
+type AcademyPageProps = {
+  theme: "light" | "dark";
+  onThemeToggle: () => void;
+};
+
+export default function AcademyPage({ theme, onThemeToggle }: AcademyPageProps) {
   return (
     <div className="academy-page bg-[#07111f] text-white">
       <header className="academy-hero">
@@ -201,6 +264,27 @@ export default function AcademyPage() {
             <a href="#gallery">Gallery</a>
             <a href="#faq">FAQ</a>
             <a href="#register">Register</a>
+            <a href={roboticsInterestFormLink} target="_blank" rel="noreferrer">Interest Form</a>
+            <button
+              type="button"
+              className="theme-toggle"
+              onClick={onThemeToggle}
+              aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+            >
+              <span className="theme-toggle-icon" aria-hidden="true">
+                {theme === "dark" ? (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="4" />
+                    <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+                  </svg>
+                ) : (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z" />
+                  </svg>
+                )}
+              </span>
+              {theme === "dark" ? "Light" : "Dark"}
+            </button>
           </div>
         </nav>
 
@@ -224,6 +308,14 @@ export default function AcademyPage() {
           </p>
           <div className="academy-actions">
             <a href="#register" className="academy-button primary">Join Robotics Masterclass</a>
+            <a
+              href={roboticsInterestFormLink}
+              target="_blank"
+              rel="noreferrer"
+              className="academy-button secondary"
+            >
+              Interest Form
+            </a>
             <a href="#programs" className="academy-button secondary">Learn More</a>
           </div>
         </motion.div>
@@ -270,14 +362,24 @@ export default function AcademyPage() {
                   </div>
                   {program.audience ? <p className="academy-audience">Audience: {program.audience}</p> : null}
                   {program.status === "ACTIVE" ? (
-                    <a
-                      href={`${whatsappLink}?text=Hello%20APT%20Automation%2C%20I%20want%20to%20register%20for%20the%20Robotics%20Masterclass.`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="academy-register"
-                    >
-                      Register Now
-                    </a>
+                    <div className="academy-program-actions">
+                      <a
+                        href={`${whatsappLink}?text=Hello%20APT%20Automation%2C%20I%20want%20to%20register%20for%20the%20Robotics%20Masterclass.`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="academy-register"
+                      >
+                        Register Now
+                      </a>
+                      <a
+                        href={roboticsInterestFormLink}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="academy-register interest"
+                      >
+                        Interest Form
+                      </a>
+                    </div>
                   ) : null}
                 </div>
               </motion.article>
@@ -316,9 +418,13 @@ export default function AcademyPage() {
           </div>
           <div className="academy-tech-grid">
             {technologies.map((tech) => (
-              <motion.article key={tech} whileHover={{ y: -6, scale: 1.02 }} className="academy-tech-card">
-                <div>{tech.slice(0, 2).toUpperCase()}</div>
-                <h3>{tech}</h3>
+              <motion.article key={tech.title} whileHover={{ y: -6, scale: 1.02 }} className="academy-tech-card">
+                <img src={tech.image} alt={`${tech.title} training`} />
+                <div className="academy-tech-body">
+                  <span>{tech.code}</span>
+                  <h3>{tech.title}</h3>
+                  <p>{tech.description}</p>
+                </div>
               </motion.article>
             ))}
           </div>
@@ -426,6 +532,14 @@ export default function AcademyPage() {
                 className="academy-button primary"
               >
                 Register for Robotics Masterclass
+              </a>
+              <a
+                href={roboticsInterestFormLink}
+                target="_blank"
+                rel="noreferrer"
+                className="academy-button secondary"
+              >
+                Interest Form
               </a>
               <a
                 href={`${whatsappLink}?text=Hello%20APT%20Automation%2C%20I%20would%20like%20to%20make%20an%20inquiry.`}
