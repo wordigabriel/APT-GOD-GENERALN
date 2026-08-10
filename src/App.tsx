@@ -1,22 +1,6 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import AcademyPage from "./AcademyPage";
-<!-- Primary Metadata -->
-<title>APT Automation | Robotics • Artificial Intelligence • Coding • STEM Education • DIY Projects</title>
-<meta name="description" content="APT Automation is the Robotics and AI division of APT GOD BUSINESSES, delivering Robotics, Artificial Intelligence, Coding, STEM Education, IoT, Smart Automation and DIY Engineering projects for schools, businesses and innovators.">
-<meta name="keywords" content="APT Automation, Robotics Ghana, AI Ghana, Coding for Kids Ghana, STEM Ghana, Wordi Gabriel, APT GOD BUSINESSES">
-<meta name="author" content="Wordi Gabriel">
 
-<!-- Open Graph / Social Media -->
-<meta property="og:type" content="website">
-<meta property="og:title" content="APT Automation | Robotics & AI Education Ghana">
-<meta property="og:description" content="Building Africa's Future Through Robotics, Artificial Intelligence and STEM Education.">
-<meta property="og:site_name" content="APT Automation">
-
-<!-- Twitter Card -->
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:site" content="@aptautomation">
-<meta name="twitter:creator" content="@wordigabriel">
-type Item = {
   id: string;
   title: string;
   summary: string;
