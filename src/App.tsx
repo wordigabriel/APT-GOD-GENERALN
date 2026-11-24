@@ -19,15 +19,6 @@ type Sample = {
 };
 
 type Theme = "light" | "dark";
-type Sample = {
-  title: string;
-  description: string;
-  action: string;
-  file: string;
-  src: string;
-};
-
-type Theme = "light" | "dark";
 
 const businesses: Item[] = [
   {
