@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import AcademyPage from "./AcademyPage";
 
+type Item = {
   id: string;
   title: string;
   summary: string;
@@ -9,6 +10,15 @@ import AcademyPage from "./AcademyPage";
   statusClass: string;
 };
 
+type Sample = {
+  title: string;
+  description: string;
+  action: string;
+  file: string;
+  src: string;
+};
+
+type Theme = "light" | "dark";
 type Sample = {
   title: string;
   description: string;
